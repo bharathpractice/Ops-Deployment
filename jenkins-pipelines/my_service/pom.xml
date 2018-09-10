@@ -39,7 +39,7 @@
                 <version>1.7</version>
                 <executions>
                     <execution>
-                        <id>das-pipelines</id>
+                        <id>my_service-pipelines</id>
                         <phase>package</phase>
                         <configuration>
                             <target>
