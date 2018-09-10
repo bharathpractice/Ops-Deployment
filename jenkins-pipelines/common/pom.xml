@@ -1,0 +1,76 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.cd.common</groupId>
+  <artifactId>common-pipelines</artifactId>
+
+  <version>3.4.1</version>
+
+  <name>CommonPipelines</name>
+  <packaging>pom</packaging>
+        
+<build>
+        <plugins>
+                <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                    <execution>
+                        <id>common_pipelines</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <target>
+                                <exec executable="mkdir">
+                                    <arg value="-p"/>
+                                    <arg value="${project.build.directory}/package"/>
+                                </exec>
+                                <exec executable="cp">
+                                    <arg value="-R"/>
+                                    <arg value="${project.basedir}/jobs"/>
+                                    <arg value="${project.build.directory}/package/"/>
+                                </exec>
+                                <tar destfile="${project.build.directory}/${project.artifactId}-${project.version}.tar" basedir="${project.build.directory}/package" />
+                                <gzip destfile="${project.build.directory}/${project.artifactId}-${project.version}.tar.gz" src="${project.build.directory}/${project.artifactId}-${project.version}.tar" />
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.3</version>
+                <executions>
+                    <execution>
+                        <id>attach-distribution</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attach-artifact</goal>
+                        </goals>
+                        <configuration>
+                            <artifacts>
+                                <artifact>
+                                    <file>target/${project.artifactId}-${project.version}.tar.gz</file>
+                                    <type>tar.gz</type>
+                                </artifact>
+                            </artifacts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+</build>     
+
+
+    <distributionManagement>
+        <repository>
+            <id>releases</id>
+            <url>http://13.232.94.111:8081/nexus/content/repositories/releases/</url>
+        </repository>
+    </distributionManagement>
+
+</project>

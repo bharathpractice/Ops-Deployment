@@ -1,0 +1,102 @@
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.cd.my_service</groupId>
+    <artifactId>my_service-pipelines</artifactId>
+    <version>3.4.1</version>
+    <name>my_service-pipelines</name>
+    <packaging>pom</packaging>
+    <dependencies>
+        <dependency>
+            <groupId>com.cd.common</groupId>
+            <artifactId>common-pipelines</artifactId>
+            <version>${common.version}</version>
+            <type>tar.gz</type>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                    <execution>
+                        <id>das-pipelines</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <target>
+                                <exec executable="mkdir">
+                                    <arg value="-p"/>
+                                    <arg value="${project.build.directory}/package"/>
+                                </exec>
+                                <exec executable="cp">
+                                    <arg value="-R"/>
+                                    <arg value="${project.basedir}/jobs"/>
+                                    <arg value="${project.build.directory}/package/"/>
+                                </exec>
+                                <exec executable="cp">
+                                    <arg value="${project.build.directory}/common-pipelines-${common.version}.tar.gz"/>
+                                    <arg value="${project.build.directory}/package/"/>
+                                </exec>
+                                <tar destfile="${project.build.directory}/${project.artifactId}-${project.version}.tar" basedir="${project.build.directory}/package" />
+                                <gzip destfile="${project.build.directory}/${project.artifactId}-${project.version}.tar.gz" src="${project.build.directory}/${project.artifactId}-${project.version}.tar" />
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.3</version>
+                <executions>
+                    <execution>
+                        <id>attach-distribution</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attach-artifact</goal>
+                        </goals>
+                        <configuration>
+                            <artifacts>
+                                <artifact>
+                                    <file>target/${project.artifactId}-${project.version}.tar.gz</file>
+                                    <type>tar.gz</type>
+                                </artifact>
+                            </artifacts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    <properties>
+        <common.version>3.4.1</common.version>
+    </properties>
+    <distributionManagement>
+        <repository>
+            <id>releases</id>
+            <url>http://13.232.94.111:8081/nexus/content/repositories/releases/</url>
+        </repository>
+    </distributionManagement>
+</project>
